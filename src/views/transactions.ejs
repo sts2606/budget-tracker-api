@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= pageTitle %>
+  </title>
+</head>
+
+<body>
+  <h1>
+    <%= title %>
+  </h1>
+  <ul>
+    <% transactions.forEach(transaction=> { %>
+      <li>
+        <%= `${transaction.type} ${transaction.amount}` %>
+      </li>
+      <% }); %>
+  </ul>
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+doctype html
+html(lang="en")
+  head
+    title= pageTitle
+  body
+    h1 Test users from Express.js
+    ol
+      each item in users
+        li
+          p= `${item.name} ${item.email} ${item.currency}`

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage/Build directories
+coverage/
+dist/
+build/
+.next/
+
+# Environment variables
+.env
+.env.local
+
+# IDE/Editor settings
+.vscode/
+.idea/

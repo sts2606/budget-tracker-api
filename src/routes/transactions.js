@@ -1,4 +1,5 @@
 import express from 'express';
+import { isAuthenticated } from '../middleware/auth.js';
 
 import {
   getTransactionsByIdHandler,
@@ -12,7 +13,7 @@ const transactionsRouter = express.Router();
 
 transactionsRouter
   .route('/')
-  .get(getTransactionsHandler)
+  .get(isAuthenticated, getTransactionsHandler)
   .post(postTransactionsHandler);
 
 transactionsRouter

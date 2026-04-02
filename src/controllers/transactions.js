@@ -5,13 +5,7 @@ export const postTransactionsHandler = (request, response) => {
 };
 
 export const getTransactionsHandler = (request, response) => {
-  const data = {
-    pageTitle: 'Transactions',
-    title: 'Test transactions',
-    transactions: mockTransactions,
-  };
-
-  response.render('transactions.ejs', data);
+  response.send(`Get Transactions`);
 };
 
 export const getTransactionsByIdHandler = (request, response) => {

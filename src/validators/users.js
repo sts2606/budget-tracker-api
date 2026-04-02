@@ -14,6 +14,10 @@ const userEditSchema = Joi.object({
   limit: Joi.number().integer().positive(),
   currency: Joi.string().min(2),
   password: Joi.string().min(8),
+  skills: Joi.object({
+    frontend: Joi.array().items(Joi.string()),
+    backend: Joi.array().items(Joi.string()),
+  }).optional(),
 });
 
 export const validateUsersPost = celebrate({
@@ -26,6 +30,7 @@ export const validateUsersPut = celebrate({
 
 export const validateUsersPutParams = celebrate({
   [Segments.PARAMS]: Joi.object({
-    userId: Joi.string().uuid(),
+    userId: Joi.string().uuid().optional(),
+    email: Joi.string().email().optional(),
   }),
 });

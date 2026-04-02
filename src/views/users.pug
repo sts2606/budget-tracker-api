@@ -2,9 +2,11 @@ doctype html
 html(lang="en")
   head
     title= pageTitle
+    link(rel="stylesheet", href="../css/style.css")
   body
     h1 Test users from Express.js
     ol
       each item in users
         li
           p= `${item.name} ${item.email} ${item.currency}`
+    img(src="../images/rectangle.jpg", alt="some image")

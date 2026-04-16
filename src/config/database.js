@@ -1,61 +1,32 @@
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 
-let client;
-let database;
-
-async function _connectToDatabase() {
-  if (database) {
-    return database;
-  }
-
+export async function connectToDatabase() {
   const uri = process.env.MONGODB_URI;
+  const dbName = process.env.DB_NAME;
 
-  if (!uri) {
+  if (!uri || !dbName) {
     throw new Error(
       'MONGODB_URI environment variable is not defined. Please check your .env file and ensure it contains a valid MongoDB connection string.',
     );
   }
 
   try {
-    client = new MongoClient(uri, {
-      appName: 'budjet_tracker',
-      serverApi: {
-        version: '1',
-        strict: true,
-        deprecationErrors: true,
-      },
+    await mongoose.connect(uri, {
+      dbName: dbName,
+      appName: dbName,
+      autoIndex: false, // Вимкнення автоматичного створення індексів
+      maxPoolSize: 10, // Обмеження кількості сокетів
+      socketTimeoutMS: 45000, // Час на закриття сокетів через неактивність
+      family: 4, // Використання IPv4
     });
 
-    await client.connect();
-
-    database = client.db('budjet_tracker');
-
-    console.log(`Connected to database: ${database.databaseName}`);
-
-    return database;
+    console.log('Connected to MongoDB using Mongoose');
   } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
     throw error;
   }
 }
 
-let connect$;
-
-export async function connectToDatabase() {
-  connect$ ??= _connectToDatabase();
-  return await connect$;
-}
-
 export async function closeDatabaseConnection() {
-  if (client) {
-    await client.close();
-    console.log('Database connection closed');
-  }
-}
-
-export function getCollection(collectionName) {
-  if (!database) {
-    throw new Error('Database not connected.');
-  }
-
-  return database.collection(collectionName);
+  mongoose.connection.close();
 }

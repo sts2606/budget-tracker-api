@@ -1,15 +1,12 @@
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-
-import { getCollection } from '../config/database.js';
+import User from '../schemas/users.js';
 
 export const authRegisterHandler = async (request, response) => {
   const { email, password, ...rest } = request.body;
 
-  const userCollection = getCollection('users');
-
   const query = { email: email };
-  const dbUser = await userCollection.findOne(query);
+  const dbUser = await User.findOne(query);
 
   if (dbUser) {
     return response.status(409).send('User with such email already exist');
@@ -17,11 +14,13 @@ export const authRegisterHandler = async (request, response) => {
 
   const hashPassword = bcrypt.hashSync(password, 10);
 
-  const newUserData = { email, password: hashPassword, ...rest };
+  const createdUser = await User.create({
+    email,
+    password: hashPassword,
+    ...rest,
+  });
 
-  await userCollection.insertOne(newUserData);
-
-  const newUser = await userCollection.findOne(query, {
+  const newUser = await User.findById(createdUser.id, {
     projection: { password: 0 },
   });
 

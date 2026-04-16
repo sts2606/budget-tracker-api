@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { getCollection } from '../config/database.js';
+import User from '../schemas/users.js';
 
 const secretKey = process.env.SECRET_KEY || 'mysecretkey';
 
@@ -8,9 +8,7 @@ export const getUsersHandler = async (request, response, next) => {
   const page = parseInt(params.page, 10) || 1;
   const limit = parseInt(params.limit, 10) || 5;
 
-  const usersCollection = getCollection('users');
-
-  const totalUsers = await usersCollection.countDocuments({});
+  const totalUsers = await User.countDocuments({});
   const totalPages = Math.ceil(totalUsers / limit);
 
   console.log('Total users:', totalUsers, 'Total pages:', totalPages);
@@ -39,10 +37,8 @@ export const getUsersHandler = async (request, response, next) => {
   response.status(200).send({ users });
 };
 
-export const getUsersSummaryHandler = async (request, response, next) => {
-  const usersCollection = getCollection('users');
-
-  await usersCollection.createIndex({ limit: 1 });
+export const getUsersSummaryHandler = async (_request, response, next) => {
+  await User.createIndexes({ limit: 1 });
 
   // const currencyAggregationOption = {
   //   $group: {
@@ -70,7 +66,7 @@ export const getUsersSummaryHandler = async (request, response, next) => {
   //   ])
   //   .toArray();
 
-  await usersCollection.createIndex({ 'skills.backend': 1 }, { sparse: true });
+  await User.createIndexes({ 'skills.backend': 1 }, { sparse: true });
 
   response.status(200).send({ result: 'Summary data' });
 };
@@ -92,13 +88,14 @@ export const putUserByIdHandler = (request, response) => {
 
 export const putUserByEmailHandler = async (request, response) => {
   const email = request.params.email || 'Unknown User';
-
-  const usersCollection = getCollection('users');
+  const body = request.body;
 
   const query = { email };
-  const update = { $set: { 'skills.backend': ['node.js'] } };
+  const update = { $set: { name: body.name } };
 
-  const result = await usersCollection.updateOne(query, update);
+  const result = await User.findOneAndUpdate(query, update, {
+    runValidators: true,
+  });
 
   if (result.matchedCount === 0) {
     return response.status(404).send('User not found');
@@ -115,10 +112,9 @@ export const postUsersHandler = async (request, response) => {
     algorithm: 'HS512',
   });
 
-  const usersCollection = getCollection('users');
   const dataToInsert = { ...rest, email, token };
 
-  const result = await usersCollection.insertOne(dataToInsert);
+  const result = await User.insertOne(dataToInsert);
 
   response.cookie('token', token, {
     httpOnly: true,

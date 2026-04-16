@@ -1,10 +1,10 @@
 import { transactions as mockTransactions } from '../mocks/transactions.js';
 
-export const postTransactionsHandler = (request, response) => {
+export const postTransactionsHandler = (_request, response) => {
   response.end('Post Transactions Handler');
 };
 
-export const getTransactionsHandler = (request, response) => {
+export const getTransactionsHandler = (_request, response) => {
   response.send(`Get Transactions`);
 };
 

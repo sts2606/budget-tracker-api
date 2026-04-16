@@ -19,6 +19,11 @@ async function _connectToDatabase() {
   try {
     client = new MongoClient(uri, {
       appName: 'budjet_tracker',
+      serverApi: {
+        version: '1',
+        strict: true,
+        deprecationErrors: true,
+      },
     });
 
     await client.connect();

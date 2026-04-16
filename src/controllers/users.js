@@ -3,8 +3,17 @@ import { getCollection } from '../config/database.js';
 
 const secretKey = process.env.SECRET_KEY || 'mysecretkey';
 
-export const getUsersHandler = async (_request, response, next) => {
+export const getUsersHandler = async (request, response, next) => {
+  const params = request.query;
+  const page = parseInt(params.page, 10) || 1;
+  const limit = parseInt(params.limit, 10) || 5;
+
   const usersCollection = getCollection('users');
+
+  const totalUsers = await usersCollection.countDocuments({});
+  const totalPages = Math.ceil(totalUsers / limit);
+
+  console.log('Total users:', totalUsers, 'Total pages:', totalPages);
 
   const query = {
     currency: 'USD',
@@ -16,12 +25,54 @@ export const getUsersHandler = async (_request, response, next) => {
       name: 1,
       email: 1,
       limit: 1,
+      currency: 1,
     },
   };
 
-  const users = await usersCollection.find(query, projection).toArray();
+  const users = await usersCollection
+    .find(query, projection)
+    .sort({ limit: 1 })
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .toArray();
 
   response.status(200).send({ users });
+};
+
+export const getUsersSummaryHandler = async (request, response, next) => {
+  const usersCollection = getCollection('users');
+
+  await usersCollection.createIndex({ limit: 1 });
+
+  // const currencyAggregationOption = {
+  //   $group: {
+  //     _id: '$currency',
+  //     totalLimit: { $sum: '$limit' },
+  //     averageLimit: { $avg: '$limit' },
+  //     total: { $sum: 1 },
+  //   },
+  // };
+
+  // const result = await usersCollection
+  //   .aggregate([
+  //     {
+  //       $match: {
+  //         currency: { $in: ['USD', 'EUR'] },
+  //       },
+  //       $sort: {
+  //         limit: 1,
+  //       },
+  //       $group: {
+  //         _id: '$currency',
+  //         totalLimit: { $sum: '$limit' },
+  //       },
+  //     },
+  //   ])
+  //   .toArray();
+
+  await usersCollection.createIndex({ 'skills.backend': 1 }, { sparse: true });
+
+  response.status(200).send({ result: 'Summary data' });
 };
 
 export const getUserByIdHandler = (request, response) => {

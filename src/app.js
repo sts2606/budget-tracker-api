@@ -14,6 +14,8 @@ import {
 } from './config/database.js';
 import passport from './config/passport.js';
 import session from 'express-session';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './docs/swagger.js';
 
 const PORT = process.env.PORT;
 
@@ -50,6 +52,8 @@ app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
 
 app.use(router);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(celebrateErrors());
 
